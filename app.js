@@ -78,7 +78,10 @@ async function fetchNews(query = 'coffee', isLoadMore = false) {
     }
 
     try {
-        const response = await fetch(`/api/news?q=${encodeURIComponent(currentQuery)}&page=${currentPage}`);
+        // Memastikan path API relatif agar bekerja di Vercel
+        const apiUrl = `/api/news?q=${encodeURIComponent(currentQuery)}&page=${currentPage}`;
+        console.log(`Fetching from: ${apiUrl}`);
+        const response = await fetch(apiUrl);
         
         if (!response.ok) {
             throw new Error(`Server returned status: ${response.status}`);
@@ -116,7 +119,7 @@ async function fetchNews(query = 'coffee', isLoadMore = false) {
     } catch (error) {
         console.error("Fetch error:", error);
         if (!isLoadMore) {
-            newsGrid.innerHTML = `<p class="status-message">Unable to connect to the news server (${error.message}). Showing test cards:</p>`;
+            newsGrid.innerHTML = `<p class="status-message">Koneksi API Gagal (${error.message}). Pastikan folder 'api' ada di root GitHub kamu. Menampilkan data lokal:</p>`;
             renderArticles(MOCK_NEWS);
         } else {
             alert("Could not load more articles. Please check your connection.");
@@ -136,7 +139,7 @@ function renderArticles(articles) {
         const card = document.createElement('article');
         card.className = 'news-card';
         card.innerHTML = `
-            <img src="${imageUrl}" alt="Coffee news image" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=500&q=80'">
+            <img src="${imageUrl}" alt="" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=500&q=80'">
             <div class="card-content">
                 <h3>${article.title}</h3>
                 <p>${article.description ? article.description.substring(0, 100) + '...' : ''}</p>
