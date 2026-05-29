@@ -42,6 +42,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
 const newsGrid = document.getElementById('news-grid');
 
+const MOCK_NEWS = [
+    {
+        title: "Test: The Perfect Espresso Shot",
+        urlToImage: "https://images.unsplash.com/photo-1510972527921-ce03766a1cf1?w=800",
+        description: "If you see this card, your CSS and card rendering logic are working correctly. This is a placeholder for real news.",
+        url: "https://www.perfectdailygrind.com/2023/10/how-to-brew-the-perfect-espresso-shot/"
+    },
+    {
+        title: "Test: Sustainable Coffee Beans",
+        urlToImage: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800",
+        description: "Verification card #2: Checking if the grid layout handles multiple items properly across columns.",
+        url: "https://www.coffeereview.com/coffee-sustainability-and-ethical-sourcing/"
+    },
+    {
+        title: "Test: Morning Brew Rituals",
+        urlToImage: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=500",
+        description: "Verification card #3: Testing responsiveness and image scaling within your news cards.",
+        url: "https://www.themanual.com/food-and-drink/coffee-rituals-around-the-world/"
+    }
+];
+
 async function fetchNews(query = 'coffee', isLoadMore = false) {
     const loadMoreBtn = document.getElementById('load-more-btn');
     
@@ -105,7 +126,8 @@ async function fetchNews(query = 'coffee', isLoadMore = false) {
             if (errorMsg.includes('401')) {
                 errorMsg = "API Key missing or invalid. Check Vercel Environment Variables.";
             }
-            newsGrid.innerHTML = `<p class="status-message">Error: Unable to reach the news server (${errorMsg}).</p>`;
+            newsGrid.innerHTML = `<p class="status-message">Error: Unable to reach the news server (${errorMsg}). Showing local brew instead:</p>`;
+            renderArticles(MOCK_NEWS);
         } else {
             alert("Could not load more articles. Please check your connection.");
         }
