@@ -116,7 +116,7 @@ async function fetchNews(query = 'coffee', isLoadMore = false) {
     } catch (error) {
         console.error("Fetch error:", error);
         if (!isLoadMore) {
-            newsGrid.innerHTML = '<p class="status-message">API not reachable. Showing test cards to verify UI:</p>';
+            newsGrid.innerHTML = `<p class="status-message">Unable to connect to the news server (${error.message}). Showing test cards:</p>`;
             renderArticles(MOCK_NEWS);
         } else {
             alert("Could not load more articles. Please check your connection.");
