@@ -119,7 +119,7 @@ async function fetchNews(query = 'coffee', isLoadMore = false) {
     } catch (error) {
         console.error("Fetch error:", error);
         if (!isLoadMore) {
-            newsGrid.innerHTML = `<p class="status-message">Unable to reach the news brew (${error.message}). Showing our saved favorites instead:</p>`;
+            newsGrid.innerHTML = `<p class="status-message">Unable to reach the news server (${error.message}). Please ensure the 'api' folder is at the root of your GitHub repository. Showing favorites instead:</p>`;
             renderArticles(MOCK_NEWS);
         } else {
             alert("Could not load more articles. Please check your connection.");
