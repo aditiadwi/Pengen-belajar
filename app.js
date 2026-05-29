@@ -42,27 +42,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 const newsGrid = document.getElementById('news-grid');
 
-const MOCK_NEWS = [
-    {
-        title: "Test: The Perfect Espresso Shot",
-        urlToImage: "https://images.unsplash.com/photo-1510972527921-ce03766a1cf1?w=800",
-        description: "If you see this card, your CSS and card rendering logic are working correctly. This is a placeholder for real news.",
-        url: "https://www.perfectdailygrind.com/2023/10/how-to-brew-the-perfect-espresso-shot/"
-    },
-    {
-        title: "Test: Sustainable Coffee Beans",
-        urlToImage: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800",
-        description: "Verification card #2: Checking if the grid layout handles multiple items properly across columns.",
-        url: "https://www.coffeereview.com/coffee-sustainability-and-ethical-sourcing/"
-    },
-    {
-        title: "Test: Morning Brew Rituals",
-        urlToImage: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=500",
-        description: "Verification card #3: Testing responsiveness and image scaling within your news cards.",
-        url: "https://www.themanual.com/food-and-drink/coffee-rituals-around-the-world/"
-    }
-];
-
 async function fetchNews(query = 'coffee', isLoadMore = false) {
     const loadMoreBtn = document.getElementById('load-more-btn');
     
@@ -78,11 +57,6 @@ async function fetchNews(query = 'coffee', isLoadMore = false) {
     }
 
     try {
-        // Debugging check: Are we running on a local file instead of a server?
-        if (window.location.protocol === 'file:') {
-            throw new Error("You are opening index.html as a file. The API only works when deployed or using 'vercel dev'.");
-        }
-
         // Memastikan path API relatif agar bekerja di Vercel
         const apiUrl = `/api/news?q=${encodeURIComponent(currentQuery)}&page=${currentPage}`;
         console.log(`Fetching from: ${apiUrl}`);
@@ -124,12 +98,14 @@ async function fetchNews(query = 'coffee', isLoadMore = false) {
     } catch (error) {
         console.error("Fetch error:", error);
         if (!isLoadMore) {
-            let userMessage = error.message;
-            if (userMessage.includes('401')) {
-                userMessage = "API Key missing. Check Vercel Environment Variables.";
+            let errorMsg = error.message;
+            if (window.location.protocol === 'file:') {
+                errorMsg = "Local files cannot make API calls. Please use a local server or deploy to Vercel.";
             }
-            newsGrid.innerHTML = `<p class="status-message">Unable to reach the news server (${userMessage}). Showing favorites instead:</p>`;
-            renderArticles(MOCK_NEWS);
+            if (errorMsg.includes('401')) {
+                errorMsg = "API Key missing or invalid. Check Vercel Environment Variables.";
+            }
+            newsGrid.innerHTML = `<p class="status-message">Error: Unable to reach the news server (${errorMsg}).</p>`;
         } else {
             alert("Could not load more articles. Please check your connection.");
         }
