@@ -136,7 +136,7 @@ function renderArticles(articles) {
         const card = document.createElement('article');
         card.className = 'news-card';
         card.innerHTML = `
-            <img src="${imageUrl}" alt="${article.title}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=500&q=80'">
+            <img src="${imageUrl}" alt="Coffee news image" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=500&q=80'">
             <div class="card-content">
                 <h3>${article.title}</h3>
                 <p>${article.description ? article.description.substring(0, 100) + '...' : ''}</p>
