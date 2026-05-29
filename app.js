@@ -47,19 +47,19 @@ const MOCK_NEWS = [
         title: "Test: The Perfect Espresso Shot",
         urlToImage: "https://images.unsplash.com/photo-1510972527921-ce03766a1cf1?w=800",
         description: "If you see this card, your CSS and card rendering logic are working correctly. This is a placeholder for real news.",
-        url: "#"
+        url: "https://www.perfectdailygrind.com/2023/10/how-to-brew-the-perfect-espresso-shot/"
     },
     {
         title: "Test: Sustainable Coffee Beans",
         urlToImage: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800",
         description: "Verification card #2: Checking if the grid layout handles multiple items properly across columns.",
-        url: "#"
+        url: "https://www.coffeereview.com/coffee-sustainability-and-ethical-sourcing/"
     },
     {
         title: "Test: Morning Brew Rituals",
         urlToImage: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=500",
         description: "Verification card #3: Testing responsiveness and image scaling within your news cards.",
-        url: "#"
+        url: "https://www.themanual.com/food-and-drink/coffee-rituals-around-the-world/"
     }
 ];
 
@@ -113,6 +113,8 @@ async function fetchNews(query = 'coffee', isLoadMore = false) {
         if (!isLoadMore) {
             newsGrid.innerHTML = '<p class="status-message">API not reachable. Showing test cards to verify UI:</p>';
             renderArticles(MOCK_NEWS);
+        } else {
+            alert("Could not load more articles. Please check your connection.");
         }
         loadMoreBtn.innerText = 'Load More';
         loadMoreBtn.disabled = false;
