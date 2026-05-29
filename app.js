@@ -119,7 +119,7 @@ async function fetchNews(query = 'coffee', isLoadMore = false) {
     } catch (error) {
         console.error("Fetch error:", error);
         if (!isLoadMore) {
-            newsGrid.innerHTML = `<p class="status-message">Koneksi API Gagal (${error.message}). Pastikan folder 'api' ada di root GitHub kamu. Menampilkan data lokal:</p>`;
+            newsGrid.innerHTML = `<p class="status-message">Unable to reach the news brew (${error.message}). Showing our saved favorites instead:</p>`;
             renderArticles(MOCK_NEWS);
         } else {
             alert("Could not load more articles. Please check your connection.");
@@ -139,7 +139,7 @@ function renderArticles(articles) {
         const card = document.createElement('article');
         card.className = 'news-card';
         card.innerHTML = `
-            <img src="${imageUrl}" alt="" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=500&q=80'">
+            <img src="${imageUrl}" alt="Coffee News" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=500&q=80'">
             <div class="card-content">
                 <h3>${article.title}</h3>
                 <p>${article.description ? article.description.substring(0, 100) + '...' : ''}</p>
