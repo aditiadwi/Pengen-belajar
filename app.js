@@ -78,6 +78,11 @@ async function fetchNews(query = 'coffee', isLoadMore = false) {
     }
 
     try {
+        // Debugging check: Are we running on a local file instead of a server?
+        if (window.location.protocol === 'file:') {
+            throw new Error("You are opening index.html as a file. The API only works when deployed or using 'vercel dev'.");
+        }
+
         // Memastikan path API relatif agar bekerja di Vercel
         const apiUrl = `/api/news?q=${encodeURIComponent(currentQuery)}&page=${currentPage}`;
         console.log(`Fetching from: ${apiUrl}`);
@@ -119,7 +124,11 @@ async function fetchNews(query = 'coffee', isLoadMore = false) {
     } catch (error) {
         console.error("Fetch error:", error);
         if (!isLoadMore) {
-            newsGrid.innerHTML = `<p class="status-message">Unable to reach the news server (${error.message}). Please ensure the 'api' folder is at the root of your GitHub repository. Showing favorites instead:</p>`;
+            let userMessage = error.message;
+            if (userMessage.includes('401')) {
+                userMessage = "API Key missing. Check Vercel Environment Variables.";
+            }
+            newsGrid.innerHTML = `<p class="status-message">Unable to reach the news server (${userMessage}). Showing favorites instead:</p>`;
             renderArticles(MOCK_NEWS);
         } else {
             alert("Could not load more articles. Please check your connection.");
