@@ -79,6 +79,11 @@ async function fetchNews(query = 'coffee', isLoadMore = false) {
 
     try {
         const response = await fetch(`/api/news?q=${encodeURIComponent(currentQuery)}&page=${currentPage}`);
+        
+        if (!response.ok) {
+            throw new Error(`Server returned status: ${response.status}`);
+        }
+
         const data = await response.json();
 
         if (data.status === 'ok') {
