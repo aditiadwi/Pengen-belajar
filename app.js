@@ -1,3 +1,6 @@
+let currentPage = 1;
+let currentQuery = 'coffee';
+
 document.addEventListener('DOMContentLoaded', () => {
     console.log("Coffee News Page Ready!");
     fetchNews();
@@ -5,17 +8,35 @@ document.addEventListener('DOMContentLoaded', () => {
     // Set up search functionality
     const searchBtn = document.getElementById('search-button');
     const searchInput = document.getElementById('search-input');
+    const loadMoreBtn = document.getElementById('load-more-btn');
 
     searchBtn.addEventListener('click', () => {
         const query = searchInput.value.trim();
-        // Cleaned up logic: use the query if provided, otherwise default to 'coffee'
         fetchNews(query || 'coffee');
+    });
+
+    loadMoreBtn.addEventListener('click', () => {
+        fetchNews(currentQuery, true);
     });
 
     searchInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
             searchBtn.click();
         }
+    });
+
+    const backToTopBtn = document.getElementById('back-to-top');
+
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 300) {
+            backToTopBtn.style.display = 'block';
+        } else {
+            backToTopBtn.style.display = 'none';
+        }
+    });
+
+    backToTopBtn.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 });
 
@@ -42,51 +63,83 @@ const MOCK_NEWS = [
     }
 ];
 
-async function fetchNews(query = 'coffee') {
-    newsGrid.innerHTML = '<div class="spinner"></div>';
+async function fetchNews(query = 'coffee', isLoadMore = false) {
+    const loadMoreBtn = document.getElementById('load-more-btn');
+    
+    if (!isLoadMore) {
+        currentPage = 1;
+        currentQuery = query;
+        newsGrid.innerHTML = '<div class="spinner"></div>';
+        loadMoreBtn.style.display = 'none';
+    } else {
+        currentPage++;
+        loadMoreBtn.innerText = 'Loading...';
+        loadMoreBtn.disabled = true;
+    }
 
     try {
-        const response = await fetch(`/api/news?q=${encodeURIComponent(query)}`);
+        const response = await fetch(`/api/news?q=${encodeURIComponent(currentQuery)}&page=${currentPage}`);
         const data = await response.json();
 
         if (data.status === 'ok') {
+            if (!isLoadMore) newsGrid.innerHTML = ''; // Only clear if new search
+            
             if (!data.articles || data.articles.length === 0) {
-                newsGrid.innerHTML = '<p class="status-message">No news found for that brew. Try another search!</p>';
+                if (!isLoadMore) {
+                    newsGrid.innerHTML = '<p class="status-message">No news found for that brew. Try another search!</p>';
+                } else {
+                    loadMoreBtn.style.display = 'none';
+                    alert("No more articles to load.");
+                }
                 return;
             }
-            console.log(`Successfully fetched ${data.articles.length} articles for: ${query}`);
-            renderArticles(data.articles);
+            console.log(`Successfully fetched page ${currentPage} for: ${currentQuery}`);
+            const firstNewCard = renderArticles(data.articles);
+
+            // Smooth scroll to the first new article if loading more
+            if (isLoadMore && firstNewCard) {
+                firstNewCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+            
+            // Show button if we got a full page of results (usually 20)
+            loadMoreBtn.style.display = data.articles.length >= 20 ? 'block' : 'none';
+            loadMoreBtn.innerText = 'Load More';
+            loadMoreBtn.disabled = false;
         } else {
             newsGrid.innerHTML = `<p class="status-message">Error: ${data.message}</p>`;
         }
     } catch (error) {
         console.error("Fetch error:", error);
-        newsGrid.innerHTML = '<p class="status-message">API not reachable. Showing test cards to verify UI:</p>';
-        renderArticles(MOCK_NEWS);
+        if (!isLoadMore) {
+            newsGrid.innerHTML = '<p class="status-message">API not reachable. Showing test cards to verify UI:</p>';
+            renderArticles(MOCK_NEWS);
+        }
+        loadMoreBtn.innerText = 'Load More';
+        loadMoreBtn.disabled = false;
     }
 }
 
 function renderArticles(articles) {
-    newsGrid.innerHTML = ''; 
+    let firstNewElement = null;
 
-    if (!articles || articles.length === 0) {
-        newsGrid.innerHTML = '<p class="status-message">No news found for this topic. Try another search!</p>';
-        return;
-    }
-
-    articles.forEach(article => {
-        if (!article.urlToImage) return; 
+    articles.forEach((article, index) => {
+        // Use a high-quality placeholder if the API doesn't return an image
+        const imageUrl = article.urlToImage || 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=500&q=80';
 
         const card = document.createElement('article');
         card.className = 'news-card';
         card.innerHTML = `
-            <img src="${article.urlToImage}" alt="${article.title}" loading="lazy">
+            <img src="${imageUrl}" alt="${article.title}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=500&q=80'">
             <div class="card-content">
                 <h3>${article.title}</h3>
                 <p>${article.description ? article.description.substring(0, 100) + '...' : ''}</p>
                 <a href="${article.url}" target="_blank" rel="noopener noreferrer">Read Full Story</a>
             </div>
         `;
+        
+        if (index === 0) firstNewElement = card;
         newsGrid.appendChild(card);
     });
+
+    return firstNewElement;
 }
